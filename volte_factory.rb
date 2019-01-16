@@ -23,42 +23,31 @@ class VolteFactory
     page = @agent.get(url)
     page.encoding = 'Shift_JIS'
     xpath = "//*[@id='vp_goods_info_val']"
-    tmp = page.search(xpath).to_s.split("</div>")
-    tmp.each do |po|
-      po.gsub!(/<div.+l">/,"")
-      po.encode!("UTF-8", "Shift_JIS")
+    search = page.search(xpath).to_s.split("</div>")
+    search.each do |tmp|
+      tmp.gsub!(/<div.+l">/,"")
+      tmp.encode!("UTF-8", "Shift_JIS")
+      tmp.gsub!(/<.+\//,"")
+      tmp.gsub!(/\..+>/,"")
+      tmp.gsub!("zaiko_nijumaru","(◎)\s")
+      tmp.gsub!("zaiko_maru","(○)\s")
+      tmp.gsub!("zaiko_sankaku1","(△)\s")
+      tmp.gsub!("zaiko_sankaku2","(△残りわずか！)\s")
+      tmp.gsub!("zaiko_batsu","(×)\s")
+      tmp.gsub!(/オリジナル\se-amusement\spass\s.+-\s/,"")
+      tmp.gsub!("クリアポスター\s-MEMORIAL\sMODEL-\s","")
+      tmp.gsub!(/(\d\d\d)\sVP/){"(#{$1}VP)"}
     end
 
-    tmp[0] = "サントラ"
-
-    for i in 0..6 do
-      tmp[i*3].gsub!("オリジナル\se-amusement\spass\s","・")
-      tmp[i*3].gsub!("クリアポスター\s-MEMORIAL\sMODEL-\s","・")
-    end
-
-    for i in 0..6 do
-      tmp[i*3+1].gsub!(" ", "")
-      tmp[i*3+1] = "(#{tmp[i*3+1]})"
-    end
-
-    for i in 0..6 do
-      tmp[i*3+2].gsub!(/<.+\//,"")
-      tmp[i*3+2].gsub!(/\..+>/,"")
-      tmp[i*3+2].gsub!("zaiko_nijumaru","(◎)")
-      tmp[i*3+2].gsub!("zaiko_maru","(○)")
-      tmp[i*3+2].gsub!("zaiko_sankaku1","(△)")
-      tmp[i*3+2].gsub!("zaiko_sankaku2","(△残りわずか！)")
-      tmp[i*3+2].gsub!("zaiko_batsu","(×)")
-    end
-
+    search[0] = "サントラ"
     res = Array.new(7, "")
 
     for i in 0..6 do
-      res[i] = tmp[i*3] + tmp[i*3+1] + tmp[i*3+2]
+      res[i] = search[i*3+2] + search[i*3] + search[i*3+1]
     end
 
-    res.insert(1, "オリジナルe-pass")
-    res.insert(4, "クリアポスター")
+    res.insert(1, "\nオリジナルe-pass")
+    res.insert(4, "\nクリアポスター")
 
     res.join("\n")
   end
