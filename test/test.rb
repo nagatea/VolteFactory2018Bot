@@ -14,5 +14,12 @@ class TestSample < Minitest::Test
     res = @vol.get_zaiko
     assert res.length > 0 
     assert_match /VP/, res
+    assert_match /サントラ/, res
+    assert_match /レイシス/, res
+    assert_match /ニアノア/, res
+    assert_match /BOOTH/, res
+    assert_match /INFINITE/, res
+    assert_match /GRAVITY/, res
+    assert_match /HEAVENLY/, res
   end
 end
