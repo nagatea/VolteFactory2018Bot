@@ -1,6 +1,5 @@
 require 'open-uri'
 require 'mechanize'
-require 'uri'
 
 class VolteFactory
   def initialize
@@ -25,37 +24,35 @@ class VolteFactory
     end
     "https://p.eagate.573.jp" + shop_url
   end
-
-  def get_zaiko
-    url = self.get_shop_url
+  
+  def get_zaiko(keyword)
+    url = self.get_shop_url(keyword)
     page = @agent.get(url)
     page.encoding = 'Shift_JIS'
-    xpath = "//*[@id='vp_goods_info_val']"
+    xpath = '//*[@id="shopinfo_vp_shopname"]'
+    shop_name = page.search(xpath).inner_text
+    xpath = "//*[@id='vp_goods_info']"
     search = page.search(xpath).to_s.split("</div>")
+    xpath = '//*[@id="chusen_goods_info"]'
+    search = search + page.search(xpath).to_s.split("</div>")
     search.each do |tmp|
       tmp.gsub!(/<div.+l">/,"")
       tmp.encode!("UTF-8", "Shift_JIS")
       tmp.gsub!(/<.+\//,"")
       tmp.gsub!(/\..+>/,"")
-      tmp.gsub!("zaiko_nijumaru","(◎)\s")
-      tmp.gsub!("zaiko_maru","(○)\s")
-      tmp.gsub!("zaiko_sankaku1","(△)\s")
-      tmp.gsub!("zaiko_sankaku2","(△残りわずか！)\s")
-      tmp.gsub!("zaiko_batsu","(×)\s")
-      tmp.gsub!(/オリジナル\se-amusement\spass\s.+-\s/,"")
-      tmp.gsub!("クリアポスター\s-MEMORIAL\sMODEL-\s","")
-      tmp.gsub!(/(\d\d\d)\sVP/){"(#{$1}VP)"}
+      tmp.gsub!(/\s/, "")
+      tmp.gsub!(/VIVIDWAVEオリジナルe-amusementpass/, "")
     end
 
-    search[0] = "サントラ"
-    res = Array.new(7, "")
+    res = Array.new(4, "")
 
-    for i in 0..6 do
-      res[i] = search[i*3+2] + search[i*3] + search[i*3+1]
+    for i in 0..2 do
+      res[i] = "【残り#{search[i*7+5]}】#{search[i*7+1]}"
     end
+    res[3] = "【残り#{search[3*7+3]}】#{search[3*7+1]}(抽選)"
 
-    res.insert(1, "\nオリジナルe-pass")
-    res.insert(4, "\nクリアポスター")
+    time = Time.now.strftime("%m/%d %H:%M")
+    res.insert(0, "#{time}現在の#{shop_name}の在庫状況")
 
     res.join("\n")
   end

@@ -13,5 +13,5 @@ end
 
 vol = VolteFactory.new
 time = Time.now.strftime("%m/%d %H:%M")
-tweet = "#{time}現在の在庫状況\n" + vol.get_zaiko
+tweet = vol.get_zaiko("高津")
 client.update(tweet)
