@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'mechanize'
+require 'uri'
 
 class VolteFactory
   def initialize
@@ -9,12 +10,19 @@ class VolteFactory
     @agent.read_timeout = 60
   end
 
-  def get_shop_url #何故か日によって店舗idが違うので検索からurlをとってくる
-    url = "https://p.eagate.573.jp/game/sdvx/iv/p/search/list.html?pref=14&search_word=%8D%82%92%C3&pcb_cnt=0"
-    page = @agent.get(url)
-    page.encoding = 'Shift_JIS'
-    xpath = '//*[@id="waku_center"]/div[5]/table/tr/td[3]/a'
-    shop_url = page.search(xpath).attribute('href').value
+  def get_shop_url(keyword="") # 何故か日によって店舗idが違うので検索からurlをとってくる
+    return "" if keyword.empty?
+    pref_list = [13, 14] # 13は東京都, 14は神奈川県
+    shop_url = ""
+    pref_list.each do |pref|
+      url = "https://p.eagate.573.jp/game/sdvx/v/p/search/list.html?pref=#{pref}&search_word=#{URI.encode(keyword.encode('Shift_JIS'))}&pcb_cnt=0"
+      page = @agent.get(url)
+      page.encoding = 'Shift_JIS'
+      xpath = '//*[@id="main_center_cnt"]/div[1]/div[5]/table/tr/td[3]/a'
+      shop = page.search(xpath).attribute('href')
+      shop_url = shop.value unless shop.nil?
+      break unless shop_url.empty?
+    end
     "https://p.eagate.573.jp" + shop_url
   end
 
