@@ -10,7 +10,7 @@ class VolteFactory
   end
 
   def get_shop_url(keyword="") # 何故か日によって店舗idが違うので検索からurlをとってくる
-    return "" if keyword.empty?
+    return "https://p.eagate.573.jp" if keyword.empty?
     pref_list = [13, 14] # 13は東京都, 14は神奈川県
     shop_url = ""
     pref_list.each do |pref|
@@ -27,6 +27,7 @@ class VolteFactory
   
   def get_zaiko(keyword)
     url = self.get_shop_url(keyword)
+    return "店舗が見つかりませんでした" if url == "https://p.eagate.573.jp"
     page = @agent.get(url)
     page.encoding = 'Shift_JIS'
     xpath = '//*[@id="shopinfo_vp_shopname"]'

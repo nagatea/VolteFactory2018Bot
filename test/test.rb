@@ -26,4 +26,16 @@ class TestSample < Minitest::Test
       assert_match /抽選/, res
     end
   end
+
+  def test_empty_get_zaiko
+    res = @vol.get_zaiko("")
+    assert res.length > 0
+    assert_match /見つかりません/, res
+  end
+  
+  def test_not_exist_get_zaiko
+  res = @vol.get_zaiko("not exist")
+  assert res.length > 0
+  assert_match /見つかりません/, res
+end
 end
